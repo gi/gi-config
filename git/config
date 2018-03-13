@@ -19,6 +19,6 @@ git config $file push.default simple
 git config $file alias.unstage 'reset HEAD --'
 git config $file alias.last 'log -1'
 git config $file alias.graph 'log --graph --decorate'
-git config $file alias.tree 'graph'
+git config $file alias.tree 'log --graph --decorate'
 git config $file alias.pdtop 'rev-parse --show-toplevel'
 git config $file alias.pdpre 'rev-parse --show-prefix'
