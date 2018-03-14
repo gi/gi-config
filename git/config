@@ -16,7 +16,9 @@ git config $file diff.submodule log
 git config $file push.default simple
 # git config $file alias.co checkout
 # git config $file alias.ci commit
+git config $file alias.discard 'checkout HEAD --'
 git config $file alias.unstage 'reset HEAD --'
+git config $file alias.ff 'merge --ff-only'
 git config $file alias.last 'log -1'
 git config $file alias.graph 'log --graph --decorate'
 git config $file alias.tree 'log --graph --decorate'
