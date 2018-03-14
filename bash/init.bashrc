@@ -6,16 +6,20 @@
 ########################################
 # History
 ########################################
+
 # don't put duplicate lines in the history. See bash(1) for more options
 # ... or force ignoredups and ignorespace
 HISTCONTROL=ignoredups:ignorespace
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+# The number of commands stored in the session buffer
 HISTSIZE=1000
+# The number of commands saved to the file buffer
 HISTFILESIZE=2000
 
 # append to the history file, don't overwrite it
 shopt -s histappend
+
 ########################################
 
 # check the window size after each command and, if necessary,
@@ -58,20 +62,29 @@ else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
 unset color_prompt
+
+########################################
+# Title
 ########################################
 
 # If this is an xterm set the title to user@host:dir
 case "$TERM" in
-xterm*|rxvt*)
+  xterm*|rxvt*)
     PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
     ;;
-*)
+  *)
     ;;
 esac
 
+########################################
+# CLI Color
+########################################
 # enable color support of ls and also add handy aliases
+
 if [ -x /usr/bin/dircolors ]; then
+    # GNU / Linux
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+
     alias ls='ls --color=auto'
     alias dir='dir --color=auto'
     alias vdir='vdir --color=auto'
@@ -79,24 +92,26 @@ if [ -x /usr/bin/dircolors ]; then
     alias grep='grep --color=auto'
     alias fgrep='fgrep --color=auto'
     alias egrep='egrep --color=auto'
+elif false; then
+    # BSD / Mac OS
+
+    alias ls='ls -G'
+    alias dir='ls -GCb'
+    alias vdir='ls -Glb'
+
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
 fi
-
-case "$OSTYPE" in
-linux*)  alias ls='ls --color=auto' ;;
-darwin*) alias ls='ls -G' ;;
-*) ;;
-esac
-
-alias grep='grep --color=auto'
-alias fgrep='fgrep --color=auto'
-alias egrep='egrep --color=auto'
 
 # some more ls aliases
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 
+########################################
 # Alias definitions.
+########################################
 # You may want to put all your additions into a separate file like
 # ~/.bash_aliases, instead of adding them here directly.
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
@@ -105,9 +120,13 @@ if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
 
+########################################
+# Completions
+########################################
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 # sources /etc/bash.bashrc).
+
 if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
     . /etc/bash_completion
 fi
