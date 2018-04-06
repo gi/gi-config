@@ -7,8 +7,8 @@
 # Path
 ########################################
 
-if [ -d "$HOME/.bin" ]; then
-    PATH="$HOME/.bin:$PATH"
+if [ -d "$HOME/.app/bin" ]; then
+    PATH="$HOME/.app/bin:$PATH"
 fi
 
 ########################################
