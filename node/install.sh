@@ -3,7 +3,7 @@
 NODE_VERSION="${1:-node}"
 
 NVM_VERSION="0.33.8"
-NVM_DIR="$HOME/.bin/nvm"
+NVM_DIR=
 PROFILE=
 
 export NVM_DIR
