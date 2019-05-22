@@ -1,26 +1,30 @@
 #!/usr/bin/env bash
 
-file="$1"
+file="${1:-}"
 shift
 
-case "$file" in
+case "${file}" in
   --system|--global|--local)
     ;;
   -f|--file|--blob)
-    file="$file $1"
+    file="${file} ${1:-}"
     shift
     ;;
 esac
 
-git config $file diff.submodule log
-git config $file push.default simple
+git config ${file} user.name 'Zach Gianos'
+
+git config ${file} core.editor 'vi'
+
+git config ${file} diff.submodule log
+
+git config ${file} push.default simple
+
 # git config $file alias.co checkout
 # git config $file alias.ci commit
-git config $file alias.discard 'checkout HEAD --'
-git config $file alias.unstage 'reset HEAD --'
-git config $file alias.ff 'merge --ff-only'
-git config $file alias.last 'log -1'
-git config $file alias.graph 'log --graph --decorate'
-git config $file alias.tree 'log --graph --decorate'
-git config $file alias.pdtop 'rev-parse --show-toplevel'
-git config $file alias.pdpre 'rev-parse --show-prefix'
+git config ${file} alias.discard 'checkout HEAD --'
+git config ${file} alias.unstage 'reset HEAD --'
+git config ${file} alias.ff 'merge --ff-only'
+git config ${file} alias.graph 'log --graph --decorate'
+git config ${file} alias.pdtop 'rev-parse --show-toplevel'
+git config ${file} alias.pdpre 'rev-parse --show-prefix'
