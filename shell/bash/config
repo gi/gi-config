@@ -3,6 +3,6 @@
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cp "${dir}/login.bashrc" ~/.bash_login
-cp "${dir}/config.bashrc" ~/.bashrc
+cp "${dir}/profile.bashrc" ~/.bashrc
 cp "${dir}/aliases.bashrc" ~/.bash_aliases
 cp "${dir}/logout.bashrc" ~/.bash_logout
