@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+dir="$(cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
+root="$(cd "${dir}/../.." && pwd)"
+source "${root}/bootstrap" || exit 1
+
+export ZDOTDIR="${XDG_CONFIG_HOME}/zsh"
+export ZSH="${XDG_DATA_HOME}/zsh"
+
+mkdir -p "${ZDOTDIR}"
+cp "${dir}/boot.zsh"        "${HOME}/.zshenv"        # bootstrap
+cp "${dir}/env.zsh"         "${ZDOTDIR}/.zshenv"     # always
+cp "${dir}/profile.zsh"     "${ZDOTDIR}/.zprofile"   # if login
+cp "${dir}/interactive.zsh" "${ZDOTDIR}/.zshrc"      # if interactive
+cp "${dir}/login.zsh"       "${ZDOTDIR}/.zlogin"     # if login
+cp "${dir}/logout.zsh"      "${ZDOTDIR}/.zlogout"    # if login
+
+# Install Oh My Zsh
+RUNZSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+mv "${HOME}/.zshrc" "${ZDOTDIR}/.oh-my-zsh"
+
+cat <<EOF >> "${ZDOTDIR}/.zshrc"
+
+################################################################################
+# Oh My Zsh
+################################################################################
+source "${ZDOTDIR}/.oh-my-zsh"
+EOF
