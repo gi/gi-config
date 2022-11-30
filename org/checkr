@@ -75,7 +75,9 @@ cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshrc"
 ################################################################################
 # Teleport
 ################################################################################
-export TSH_USER="${USER}@checkr.com"
+# export TSH_USER="${USER}@checkr.com"
+export TELEPORT_AUTH="gitlab"
+export TELEPORT_PROXY="heimdallr.checkrhq.net"
 EOF
 
 ################################################################################
