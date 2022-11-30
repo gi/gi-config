@@ -1,26 +1,24 @@
-#!/usr/bin/env python
+#!/usr/bin/env ruby
 #
 # See https://developer.apple.com/library/archive/technotes/tn2450/_index.html
 
-import json
-import os
+require "json"
 
 mappings = [
-  { 'src': 0x65, 'dst': 0xE7},         # Application => GUI (Windows/Apple)
+  { src: 0x65, dst: 0xE7 },         # Application => GUI (Windows/Apple)
 ]
-
-def convert(m):
-  return {
-    "HIDKeyboardModifierMappingSrc": 0x700000000 | m["src"],
-    "HIDKeyboardModifierMappingDst": 0x700000000 | m["dst"],
+mappings.map! do |m|
+  {
+    HIDKeyboardModifierMappingSrc: 0x700000000 | m[:src],
+    HIDKeyboardModifierMappingDst: 0x700000000 | m[:dst],
   }
+end
 
-mappings = map(convert, mappings)
 properties = {
-  "UserKeyMapping": mappings,
+  UserKeyMapping: mappings,
 }
-properties = json.dumps(properties)
+properties = JSON.dump(properties)
 
-command = "hidutil property --set '{}'".format(properties)
+command = "hidutil property --set '#{properties}'"
 
-os.system(command)
+exec(command)
