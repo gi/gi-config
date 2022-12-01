@@ -3,51 +3,148 @@
 file="${(%):-%x}"
 root="$(cd "$(dirname "${file}")/../" && pwd)"
 
+echo "" > /tmp/tasks
+tasks() {
+  local task="${1}"
+  if [[ -z "${task}" ]]; then
+    cat /tmp/tasks
+  else
+    echo "${tasks}" >> /tmp/tasks
+  fi
+}
+
 ################################################################################
 # Shell
 ################################################################################
-"${root}/shell/zsh/configure"
+echo "Configuring ZSH"
 
-################################################################################
-# Home
-################################################################################
-"${root}/home"
+"${root}/shell/zsh/configure"
 
 ################################################################################
 # Xcode CLI Tools
 ################################################################################
-xcode-select --install
+# echo "Configuring XCode"
+# xcode-select --install
+
+################################################################################
+# Git
+################################################################################
+echo "Configuring Git"
+
+"${root}/git/config" --global
 
 ################################################################################
 # Homebrew
 ################################################################################
+echo "Configuring Homebrew"
+
 "${root}/homebrew/install"
 
-brew install gpg
+cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshenv"
+
+################################################################################
+# Homebrew
+################################################################################
+eval "\$(/opt/homebrew/bin/brew shellenv)"
+EOF
+
+source "${ZDOTDIR:-${HOME}}/.zshenv"
+
 brew install openssl
+
+################################################################################
+# GPG
+################################################################################
+echo "Configuring GPG"
+
+brew install gpg
+
+key="$(gpg --list-secret-keys --keyid-format LONG "${USER}@checkr.com" | grep '^sec' | sed -E 's!.*/([a-z0-9]+).*!\1!i')"
+
+if [[ -n "${key}" ]]; then
+  echo "[GPG] A key already exists: ${key}"
+else
+  gpg --full-generate-key
+  key="$(gpg --list-secret-keys --keyid-format LONG "${USER}@checkr.com" | grep '^sec' | sed -E 's!.*/([a-z0-9]+).*!\1!i')"
+fi
+
+gpg --armor --export "${key}"
+
+echo "[GPG] Please add it to GitHub/GitLab."
+read -p '[GPG] Waiting...'
+
+git config --global commit.gpgsign true
+git config --global user.signingkey "${key}"
+
+brew install pinentry-mac
+echo "pinentry-program $(command -v pinentry-mac)" >> ~/.gnupg/gpg-agent.conf
+killall gpg-agent
+
+################################################################################
+# SSH
+################################################################################
+echo "Configuring SSH"
+
+cypher=ed25519
+
+if [[ -f ~/.ssh/id_${cypher} ]]; then
+  echo "[SSH] The identity file already exists: ~/.ssh/id_${cypher}"
+else
+  ssh-keygen -t ${cypher} -C "${USER}@checkr.com"
+fi
+
+if grep -q 'Host .*.checkrhq.net' ~/.ssh/config; then
+else
+  cat <<EOF >> ~/.ssh/config
+Host *.checkrhq.net
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentityFile ~/.ssh/id_${cypher}
+EOF
+fi
+
+if grep -q 'Host .*.github.com' ~/.ssh/config; then
+else
+  cat <<EOF >> ~/.ssh/config
+Host *.github.com
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentityFile ~/.ssh/id_${cypher}
+EOF
+fi
+
+eval "$(ssh-agent -s)"
+ssh-add --apple-use-keychain ~/.ssh/id_${cypher}
+cat ~/.ssh/id_${cypher}.pub
+pbcopy < ~/.ssh/id_${cypher}.pub
+echo "[SSH] The public key was copied to your clipboard."
+echo "[SSH] Please add it to GitHub/GitLab."
+read -p '[SSH] Waiting...'
 
 ################################################################################
 # ASDF Tools Manager
 ################################################################################
-cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshrc"
+echo "Configuring ASDF"
+
+cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshenv"
 
 ################################################################################
 # ASDF Tool Manager
 ################################################################################
-export ASDF_CONFIG_FILE="${HOME}/.config/asdf"
-export ASDF_DATA_DIR="${HOME}/.local/share/asdf"
-source "$(brew --prefix asdf)/asdf.sh"
+export ASDF_CONFIG_FILE="\${XDG_CONFIG_HOME:-\${HOME}/.config}/asdf"
+export ASDF_DATA_DIR="\${XDG_DATA_HOME:-\${HOME}/.local/share}/asdf"
+source "\$(brew --prefix asdf)/libexec/asdf.sh"
 EOF
 
-source "${ZDOTDIR:-${HOME}}/.zshrc"
+source "${ZDOTDIR:-${HOME}}/.zshenv"
 
 brew install asdf
-asdf plugin-add ruby
 asdf plugin-add golang
 asdf plugin-add nodejs
 asdf plugin-add python
+asdf plugin-add ruby
 
-bash "${ASDF_DATA_DIR}/plugins/nodejs/bin/import-release-team-keyring"
+# bash "${ASDF_DATA_DIR}/plugins/nodejs/bin/import-release-team-keyring"
 
 cat <<EOF > "${ASDF_CONFIG_FILE}"
 legacy_version_file = yes
@@ -56,29 +153,134 @@ EOF
 ################################################################################
 # Ruby Bundler
 ################################################################################
-cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshrc"
+echo "Configuring Ruby Bundler"
+
+cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshenv"
 
 ################################################################################
 # Ruby Bundler
 ################################################################################
-export BUNDLE_USER_CACHE=~/.cache/bundle
-export BUNDLE_USER_CONFIG=~/.config/bundle
-export BUNDLE_USER_HOME=~/.local/share/bundle
-export BUNDLE_GEM__FURY__IO=
+export BUNDLE_USER_CACHE=\${XDG_CACHE_HOME}/bundle
+export BUNDLE_USER_CONFIG=\${XDG_CONFIG_HOME}/bundle
+export BUNDLE_USER_HOME=\${XDG_DATA_HOME}/bundle
+EOF
+
+source "${ZDOTDIR:-${HOME}}/.zshenv"
+
+cat <<EOF > "${BUNDLE_USER_CONFIG}"
+---
+BUNDLE_GEM__CHANGELOG: "true"
+BUNDLE_GEM__CI: "gitlab"
+BUNDLE_GEM__COC: "false"
+BUNDLE_GEM__LINTER: "rubocop"
+BUNDLE_GEM__MIT: "false"
+BUNDLE_GEM__TEST: "rspec"
 EOF
 
 ################################################################################
-# Teleport
+# Gemfury
 ################################################################################
-cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshrc"
+echo "Configuring Gemfury"
+
+cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshenv"
+
+################################################################################
+# Gemfury
+################################################################################
+source "\${ZDOTDIR:-\${HOME}}/.gemfury"
+EOF
+
+if [[ -f "${ZDOTDIR:-${HOME}}/.gemfury" ]]; then
+  echo "[Gemfury] Already configured"
+else
+  cat <<EOF > "${ZDOTDIR:-${HOME}}/.gemfury"
+################################################################################
+# Gemfury
+################################################################################
+export GEMFURY_TOKEN=
+
+gemfury-token() {
+  local token="\${1}"
+  if [[ -z "\${token}" ]]; then
+    echo "\${GEMFURY_TOKEN}"
+  else
+    sed -E -i "" -e "/^export GEMFURY_TOKEN=.*/s//export GEMFURY_TOKEN=\${token}/" \\
+      "\${ZDOTDIR:-\${HOME}}/.gemfury" > /dev/null
+    bundle config gem.fury.io "\${token}"
+  fi
+}
+EOF
+fi
+
+echo "[Gemfury] To update your token, run: gemfury-token TOKEN"
+
+################################################################################
+# GitLab
+################################################################################
+echo "Configuring GitLab"
+
+cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshenv"
+
+################################################################################
+# GitLab
+################################################################################
+source "\${ZDOTDIR:-\${HOME}}/.gitlab"
+EOF
+
+if [[ -f "${ZDOTDIR:-${HOME}}/.gitlab" ]]; then
+  echo "[GitLab] Already configured"
+else
+  cat <<EOF > "${ZDOTDIR:-${HOME}}/.gitlab"
+################################################################################
+# GitLab
+################################################################################
+export GITLAB_TOKEN=
+
+gitlab-token() {
+  local token="\${1}"
+  if [[ -z "\${token}" ]]; then
+    echo "\${GITLAB_TOKEN}"
+  else
+    sed -E -i "" -e "/^export GITLAB_TOKEN=.*/s//export GITLAB_TOKEN=\${token}/"\\
+      "\${ZDOTDIR:-\${HOME}}/.gitlab" > /dev/null
+    echo "\${token}" | docker login -u "${GITLAB_USER:-${USER}}" gitlab-registry.checkrhq.net --password-stdin
+  fi
+}
+EOF
+fi
+
+echo "[GitLab] To update your token, run: gitlab-token TOKEN"
 
 ################################################################################
 # Teleport
 ################################################################################
-# export TSH_USER="${USER}@checkr.com"
+echo "Configuring Teleport"
+
+cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshenv"
+
+################################################################################
+# Teleport
+################################################################################
 export TELEPORT_AUTH="gitlab"
 export TELEPORT_PROXY="heimdallr.checkrhq.net"
 EOF
+
+if command -v tsh &> /dev/null; then
+  echo "[Teleport] Already installed"
+else
+  open "https://goteleport.com/download/?os=macos"
+fi
+
+################################################################################
+# Docker
+################################################################################
+echo "Configuring Docker"
+
+if command -v docker &> /dev/null; then
+  echo "[Docker] Already installed"
+else
+  open "https://docs.docker.com/get-docker/"
+fi
 
 ################################################################################
 # Puma Dev
