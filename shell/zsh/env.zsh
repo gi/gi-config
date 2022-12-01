@@ -6,3 +6,7 @@ export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-${HOME}/.config}"
 export XDG_DATA_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}"
 export XDG_INCLUDE_HOME="${XDG_LIB_HOME:-${HOME}/.local/include}"
 export XDG_LIB_HOME="${XDG_LIB_HOME:-${HOME}/.local/lib}"
+
+if [ -d "${XDG_BIN_HOME}" ]; then
+  export PATH="${XDG_BIN_HOME}:${PATH}"
+fi

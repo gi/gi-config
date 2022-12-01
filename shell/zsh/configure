@@ -5,7 +5,7 @@ root="$(cd "${dir}/../.." && pwd)"
 source "${root}/bootstrap" || exit 1
 
 export ZDOTDIR="${XDG_CONFIG_HOME}/zsh"
-export ZSH="${XDG_DATA_HOME}/zsh"
+export ZSH="${XDG_DATA_HOME}/oh-my-zsh"
 
 mkdir -p "${ZDOTDIR}"
 cp "${dir}/boot.zsh"        "${HOME}/.zshenv"        # bootstrap
@@ -15,14 +15,23 @@ cp "${dir}/interactive.zsh" "${ZDOTDIR}/.zshrc"      # if interactive
 cp "${dir}/login.zsh"       "${ZDOTDIR}/.zlogin"     # if login
 cp "${dir}/logout.zsh"      "${ZDOTDIR}/.zlogout"    # if login
 
-# Install Oh My Zsh
-RUNZSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-mv "${HOME}/.zshrc" "${ZDOTDIR}/.oh-my-zsh"
+################################################################################
+# Oh My ZSH
+################################################################################
+echo "Configuring OMZ"
 
-cat <<EOF >> "${ZDOTDIR}/.zshrc"
+if [[ -d "${ZSH}" ]]; then
+  echo "[OMZ] Already installed"
+else
+  # Install Oh My Zsh
+  sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+  mv "${HOME}/.zshrc" "${ZDOTDIR}/.oh-my-zsh"
+fi
+
+cat <<-EOF >> "${ZDOTDIR}/.zshrc"
 
 ################################################################################
 # Oh My Zsh
 ################################################################################
-source "${ZDOTDIR}/.oh-my-zsh"
+source "\${ZDOTDIR}/.oh-my-zsh"
 EOF
