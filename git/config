@@ -1,18 +1,21 @@
 #!/usr/bin/env bash
 
-file="${1:-}"
-shift
+file="$@"
+# shift
 
-case "${file}" in
-  --system|--global|--local)
-    ;;
-  -f|--file|--blob)
-    file="${file} ${1:-}"
-    shift
-    ;;
-esac
+# case "${file}" in
+#   --system|--global|--local)
+#     ;;
+#   -f|--file|--blob)
+#     file="${file} ${1:-}"
+#     shift
+#     ;;
+# esac
 
-git config ${file} user.name 'Zach Gianos'
+read -p "What's your name? " name
+[[ -n "${name}" ]] && git config ${file} user.name "${name}"
+read -p "What's your email? " email
+[[ -n "${email}" ]] && git config ${file} user.email "${email}"
 
 git config ${file} core.editor 'vi'
 
@@ -32,3 +35,4 @@ git config ${file} alias.graph 'log --graph --decorate'
 git config ${file} alias.pdtop 'rev-parse --show-toplevel'
 git config ${file} alias.pdpre 'rev-parse --show-prefix'
 
+git config --list --show-scope
