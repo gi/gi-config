@@ -40,7 +40,7 @@ echo "Configuring Homebrew"
 
 "${root}/homebrew/install"
 
-cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshenv"
+cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshrc"
 
 ################################################################################
 # Homebrew
@@ -48,7 +48,7 @@ cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshenv"
 eval "\$(/opt/homebrew/bin/brew shellenv)"
 EOF
 
-source "${ZDOTDIR:-${HOME}}/.zshenv"
+source "${ZDOTDIR:-${HOME}}/.zshrc"
 
 brew install openssl
 
@@ -126,7 +126,7 @@ read -p '[SSH] Waiting...'
 ################################################################################
 echo "Configuring ASDF"
 
-cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshenv"
+cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshrc"
 
 ################################################################################
 # ASDF Tool Manager
@@ -136,7 +136,7 @@ export ASDF_DATA_DIR="\${XDG_DATA_HOME:-\${HOME}/.local/share}/asdf"
 source "\$(brew --prefix asdf)/libexec/asdf.sh"
 EOF
 
-source "${ZDOTDIR:-${HOME}}/.zshenv"
+source "${ZDOTDIR:-${HOME}}/.zshrc"
 
 brew install asdf
 asdf plugin-add golang
@@ -155,7 +155,7 @@ EOF
 ################################################################################
 echo "Configuring Ruby Bundler"
 
-cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshenv"
+cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshrc"
 
 ################################################################################
 # Ruby Bundler
@@ -165,7 +165,7 @@ export BUNDLE_USER_CONFIG=\${XDG_CONFIG_HOME}/bundle
 export BUNDLE_USER_HOME=\${XDG_DATA_HOME}/bundle
 EOF
 
-source "${ZDOTDIR:-${HOME}}/.zshenv"
+source "${ZDOTDIR:-${HOME}}/.zshrc"
 
 cat <<EOF > "${BUNDLE_USER_CONFIG}"
 ---
@@ -182,7 +182,7 @@ EOF
 ################################################################################
 echo "Configuring Gemfury"
 
-cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshenv"
+cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshrc"
 
 ################################################################################
 # Gemfury
@@ -190,14 +190,11 @@ cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshenv"
 source "\${ZDOTDIR:-\${HOME}}/.gemfury"
 EOF
 
-if [[ -f "${ZDOTDIR:-${HOME}}/.gemfury" ]]; then
-  echo "[Gemfury] Already configured"
-else
-  cat <<EOF > "${ZDOTDIR:-${HOME}}/.gemfury"
+cat <<EOF > "${ZDOTDIR:-${HOME}}/.gemfury"
 ################################################################################
 # Gemfury
 ################################################################################
-export GEMFURY_TOKEN=
+export GEMFURY_TOKEN="${GEMFURY_TOKEN}"
 
 gemfury-token() {
   local token="\${1}"
@@ -206,11 +203,10 @@ gemfury-token() {
   else
     sed -E -i "" -e "/^export GEMFURY_TOKEN=.*/s//export GEMFURY_TOKEN=\${token}/" \\
       "\${ZDOTDIR:-\${HOME}}/.gemfury" > /dev/null
-    bundle config gem.fury.io "\${token}"
+    bundle config set --global gem.fury.io "\${token}"
   fi
 }
 EOF
-fi
 
 echo "[Gemfury] To update your token, run: gemfury-token TOKEN"
 
@@ -219,7 +215,7 @@ echo "[Gemfury] To update your token, run: gemfury-token TOKEN"
 ################################################################################
 echo "Configuring GitLab"
 
-cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshenv"
+cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshrc"
 
 ################################################################################
 # GitLab
@@ -227,14 +223,11 @@ cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshenv"
 source "\${ZDOTDIR:-\${HOME}}/.gitlab"
 EOF
 
-if [[ -f "${ZDOTDIR:-${HOME}}/.gitlab" ]]; then
-  echo "[GitLab] Already configured"
-else
-  cat <<EOF > "${ZDOTDIR:-${HOME}}/.gitlab"
+cat <<EOF > "${ZDOTDIR:-${HOME}}/.gitlab"
 ################################################################################
 # GitLab
 ################################################################################
-export GITLAB_TOKEN=
+export GITLAB_TOKEN="${GITLAB_TOKEN}"
 
 gitlab-token() {
   local token="\${1}"
@@ -247,7 +240,6 @@ gitlab-token() {
   fi
 }
 EOF
-fi
 
 echo "[GitLab] To update your token, run: gitlab-token TOKEN"
 
@@ -256,7 +248,7 @@ echo "[GitLab] To update your token, run: gitlab-token TOKEN"
 ################################################################################
 echo "Configuring Teleport"
 
-cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshenv"
+cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshrc"
 
 ################################################################################
 # Teleport
