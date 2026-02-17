@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+brew install gpg
+
+key="$(gpg --list-secret-keys --keyid-format LONG "${USER}@checkr.com" | grep '^sec' | sed -E 's!.*/([a-z0-9]+).*!\1!i')"
+
+if [[ -n "${key}" ]]; then
+  echo "[GPG] A key already exists: ${key}"
+else
+  gpg --full-generate-key
+  key="$(gpg --list-secret-keys --keyid-format LONG "${USER}@checkr.com" | grep '^sec' | sed -E 's!.*/([a-z0-9]+).*!\1!i')"
+fi
+
+gpg --armor --export "${key}"
+
+echo "[GPG] Please add it to GitHub/GitLab."
+read -p '[GPG] Waiting...'
+
+git config --global commit.gpgsign true
+git config --global user.signingkey "${key}"
+
+brew install pinentry-mac
+echo "pinentry-program $(command -v pinentry-mac)" >> ~/.gnupg/gpg-agent.conf
+killall gpg-agent
