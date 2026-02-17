@@ -129,33 +129,8 @@ echo "[Gemfury] To update your token, run: gemfury-token TOKEN"
 ################################################################################
 echo "Configuring GitLab"
 
-cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshrc"
+"${root}/gitlab/configure"
 
-################################################################################
-# GitLab
-################################################################################
-source "\${ZDOTDIR:-\${HOME}}/.gitlab"
-EOF
-
-cat <<EOF > "${ZDOTDIR:-${HOME}}/.gitlab"
-################################################################################
-# GitLab
-################################################################################
-export GITLAB_TOKEN="${GITLAB_TOKEN}"
-
-gitlab-token() {
-  local token="\${1}"
-  if [[ -z "\${token}" ]]; then
-    echo "\${GITLAB_TOKEN}"
-  else
-    sed -E -i "" -e "/^export GITLAB_TOKEN=.*/s//export GITLAB_TOKEN=\${token}/"\\
-      "\${ZDOTDIR:-\${HOME}}/.gitlab" > /dev/null
-    echo "\${token}" | docker login -u "${GITLAB_USER:-${USER}}" gitlab-registry.checkrhq.net --password-stdin
-  fi
-}
-EOF
-
-echo "[GitLab] To update your token, run: gitlab-token TOKEN"
 
 ################################################################################
 # Puma Dev
