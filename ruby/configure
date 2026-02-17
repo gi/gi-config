@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshrc"
+
+################################################################################
+# Ruby Bundler
+################################################################################
+export BUNDLE_USER_CACHE=\${XDG_CACHE_HOME}/bundle
+export BUNDLE_USER_CONFIG=\${XDG_CONFIG_HOME}/bundle
+export BUNDLE_USER_HOME=\${XDG_DATA_HOME}/bundle
+EOF
+
+source "${ZDOTDIR:-${HOME}}/.zshrc"
+
+cat <<EOF > "${BUNDLE_USER_CONFIG}"
+---
+BUNDLE_GEM__CHANGELOG: "true"
+BUNDLE_GEM__CI: "gitlab"
+BUNDLE_GEM__COC: "false"
+BUNDLE_GEM__LINTER: "rubocop"
+BUNDLE_GEM__MIT: "false"
+BUNDLE_GEM__TEST: "rspec"
+EOF
