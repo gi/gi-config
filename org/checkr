@@ -64,41 +64,8 @@ echo "Configuring GPG"
 ################################################################################
 echo "Configuring SSH"
 
-cypher=ed25519
+"${root}/ssh/configure"
 
-if [[ -f ~/.ssh/id_${cypher} ]]; then
-  echo "[SSH] The identity file already exists: ~/.ssh/id_${cypher}"
-else
-  ssh-keygen -t ${cypher} -C "${USER}@checkr.com"
-fi
-
-if grep -q 'Host .*.checkrhq.net' ~/.ssh/config; then
-else
-  cat <<EOF >> ~/.ssh/config
-Host *.checkrhq.net
-  AddKeysToAgent yes
-  UseKeychain yes
-  IdentityFile ~/.ssh/id_${cypher}
-EOF
-fi
-
-if grep -q 'Host .*.github.com' ~/.ssh/config; then
-else
-  cat <<EOF >> ~/.ssh/config
-Host *.github.com
-  AddKeysToAgent yes
-  UseKeychain yes
-  IdentityFile ~/.ssh/id_${cypher}
-EOF
-fi
-
-eval "$(ssh-agent -s)"
-ssh-add --apple-use-keychain ~/.ssh/id_${cypher}
-cat ~/.ssh/id_${cypher}.pub
-pbcopy < ~/.ssh/id_${cypher}.pub
-echo "[SSH] The public key was copied to your clipboard."
-echo "[SSH] Please add it to GitHub/GitLab."
-read -p '[SSH] Waiting...'
 
 ################################################################################
 # ASDF Tools Manager
