@@ -151,6 +151,65 @@ legacy_version_file = yes
 EOF
 
 ################################################################################
+# Artifactory
+################################################################################
+echo "Configuring Artifactory"
+
+cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshrc"
+
+################################################################################
+# Artifactory
+################################################################################
+source "\${ZDOTDIR:-\${HOME}}/.artifactory"
+EOF
+
+cat <<EOF > "${ZDOTDIR:-${HOME}}/.artifactory"
+################################################################################
+# Artifactory
+################################################################################
+export ARTIFACTORY_TOKEN="${ARTIFACTORY_TOKEN}"
+export ARTIFACTORY_GEM_TOKEN="${USER}%40checkr.com:${ARTIFACTORY_TOKEN}"
+export ARTIFACTORY_NPM_TOKEN="${ARTIFACTORY_TOKEN}"
+
+artifactory-token() {
+  local token="\${1}"
+  if [[ -z "\${token}" ]]; then
+    echo "\${ARTIFACTORY_TOKEN}"
+  else
+    sed -E -i "" -e "/^export ARTIFACTORY_TOKEN=.*/s//export ARTIFACTORY_TOKEN=\"\${token}\"/" \\
+      "\${ZDOTDIR:-\${HOME}}/.artifactory" > /dev/null
+    artifactory-gem-token "\${token}"
+    artifactory-npm-token "\${token}"
+    source "\${ZDOTDIR:-\${HOME}}/.artifactory"
+  fi
+}
+
+artifactory-gem-token() {
+  local token="\${1}"
+  if [[ -z "\${token}" ]]; then
+    echo "\${ARTIFACTORY_GEM_TOKEN}"
+  else
+    token="\${USER}%40checkr.com:\${token}"
+    sed -E -i "" -e "/^export ARTIFACTORY_GEM_TOKEN=.*/s//export ARTIFACTORY_GEM_TOKEN=\"\${token}\"/" \\
+      "\${ZDOTDIR:-\${HOME}}/.artifactory" > /dev/null
+    bundle config set --global arti.checkrhq.net "\${token}"
+  fi
+}
+
+artifactory-npm-token() {
+  local token="\${1}"
+  if [[ -z "\${token}" ]]; then
+    echo "\${ARTIFACTORY_NPM_TOKEN}"
+  else
+    sed -E -i "" -e "/^export ARTIFACTORY_NPM_TOKEN=.*/s//export ARTIFACTORY_NPM_TOKEN=\"\${token}\"/" \\
+      "\${ZDOTDIR:-\${HOME}}/.artifactory" > /dev/null
+  fi
+}
+EOF
+
+echo "[Gemfury] To update your token, run: artifactory-token TOKEN"
+
+################################################################################
 # Ruby Bundler
 ################################################################################
 echo "Configuring Ruby Bundler"
@@ -242,6 +301,15 @@ gitlab-token() {
 EOF
 
 echo "[GitLab] To update your token, run: gitlab-token TOKEN"
+
+################################################################################
+# Puma Dev
+################################################################################
+echo "Configuring Puma Dev"
+
+brew install puma/puma/puma-dev
+sudo puma-dev -setup
+puma-dev -install -d localhost
 
 ################################################################################
 # Teleport
