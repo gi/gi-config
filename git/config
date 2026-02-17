@@ -17,12 +17,22 @@ read -p "What's your name? " name
 read -p "What's your email? " email
 [[ -n "${email}" ]] && git config ${file} user.email "${email}"
 
-git config ${file} core.editor 'vi'
+git config ${file} column.ui auto
+git config ${file} core.editor vi
 
+git config ${file} diff.algorithm histogram
+git config ${file} diff.colorMoved plain
+git config ${file} diff.mnemonicPrefix true
+git config ${file} diff.renames true
 git config ${file} diff.submodule log
 
+git config ${file} merge.conflictstyle zdiff3
+
 git config ${file} pull.ff only
+git config ${file} push.autoSetupRemote true
 git config ${file} push.default simple
+
+git config ${file} tag.sort version:refname
 
 # git config $file alias.co checkout
 # git config $file alias.ci commit
