@@ -14,19 +14,19 @@ cat <<EOF >> "${SHRC}"
 ################################################################################
 # ASDF Tool Manager
 ################################################################################
-export ASDF_CONFIG_FILE="${XDG_CONFIG_HOME}/asdf"
-export ASDF_DATA_DIR="${XDG_DATA_HOME}/asdf"
-source "$(brew --prefix asdf)/asdf.sh"
+export ASDF_CONFIG_FILE="\${XDG_CONFIG_HOME:-\${HOME}/.config}/asdf"
+export ASDF_DATA_DIR="\${XDG_DATA_HOME:-\${HOME}/.local/share}/asdf"
+source "\$(brew --prefix asdf)/libexec/asdf.sh"
 EOF
 
 source "${SHRC}"
 
-asdf plugin-add ruby
 asdf plugin-add golang
 asdf plugin-add nodejs
 asdf plugin-add python
+asdf plugin-add ruby
 
-bash "${ASDF_DATA_DIR}/plugins/nodejs/bin/import-release-team-keyring"
+# bash "${ASDF_DATA_DIR}/plugins/nodejs/bin/import-release-team-keyring"
 
 cat <<EOF > "${ASDF_CONFIG_FILE}"
 legacy_version_file = yes
