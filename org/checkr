@@ -137,9 +137,7 @@ echo "Configuring GitLab"
 ################################################################################
 echo "Configuring Puma Dev"
 
-brew install puma/puma/puma-dev
-sudo puma-dev -setup
-puma-dev -install -d localhost
+"${root}/puma/setup"
 
 ################################################################################
 # Teleport

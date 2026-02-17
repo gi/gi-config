@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+brew install puma/puma/puma-dev
+sudo puma-dev -setup
+puma-dev -install -d localhost
