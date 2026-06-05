@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+
+cat <<EOF >> "${ZDOTDIR:-${HOME}}/.zshrc"
+
+################################################################################
+# Artifactory
+################################################################################
+source "\${ZDOTDIR:-\${HOME}}/.artifactory"
+EOF
+
+cat <<EOF > "${ZDOTDIR:-${HOME}}/.artifactory"
+################################################################################
+# Artifactory
+################################################################################
+export ARTIFACTORY_TOKEN="${ARTIFACTORY_TOKEN}"
+export ARTIFACTORY_DOCKER_TOKEN="\${ARTIFACTORY_TOKEN}"
+export ARTIFACTORY_GEM_TOKEN="\${USER}%40checkr.com:\${ARTIFACTORY_TOKEN}"
+export ARTIFACTORY_NPM_TOKEN="\${ARTIFACTORY_TOKEN}"
+export ARTIFACTORY_PYPI_TOKEN="\${ARTIFACTORY_TOKEN}"
+export ARTIFACTORY_USER="\${USER}@checkr.com"
+
+export UV_INDEX_ARTIFACTORY_USERNAME=""
+export UV_INDEX_ARTIFACTORY_PASSWORD="\${ARTIFACTORY_PYPI_TOKEN}"
+
+artifactory-token() {
+  local token="\${1}"
+  if [[ -z "\${token}" ]]; then
+    echo "\${ARTIFACTORY_TOKEN}"
+  else
+    sed -E -i "" -e "/^export ARTIFACTORY_TOKEN=.*/s//export ARTIFACTORY_TOKEN=\"\${token}\"/" \\
+      "\${ZDOTDIR:-\${HOME}}/.artifactory" > /dev/null
+    artifactory-docker-token "\${token}"
+    artifactory-gem-token "\${token}"
+    artifactory-npm-token "\${token}"
+    artifactory-pypi-token "\${token}"
+    source "\${ZDOTDIR:-\${HOME}}/.artifactory"
+  fi
+}
+
+artifactory-docker-token() {
+  local token="\${1}"
+  if [[ -z "\${token}" ]]; then
+    echo "\${ARTIFACTORY_DOCKER_TOKEN}"
+  else
+    # sed -E -i "" -e "/^export ARTIFACTORY_DOCKER_TOKEN=.*/s//export ARTIFACTORY_DOCKER_TOKEN=\"\${token}\"/" \\
+    #   "\${ZDOTDIR:-\${HOME}}/.artifactory" > /dev/null
+    docker login -u "\${ARTIFACTORY_USER}" -p "\${token}" docker.arti.checkrhq.net
+  fi
+}
+
+artifactory-gem-token() {
+  local token="\${1}"
+  if [[ -z "\${token}" ]]; then
+    echo "\${ARTIFACTORY_GEM_TOKEN}"
+  else
+    token="\${USER}%40checkr.com:\${token}"
+    # sed -E -i "" -e "/^export ARTIFACTORY_GEM_TOKEN=.*/s//export ARTIFACTORY_GEM_TOKEN=\"\${token}\"/" \\
+    #   "\${ZDOTDIR:-\${HOME}}/.artifactory" > /dev/null
+    bundle config set --global arti.checkrhq.net "\${token}"
+  fi
+}
+
+artifactory-npm-token() {
+  local token="\${1}"
+  if [[ -z "\${token}" ]]; then
+    echo "\${ARTIFACTORY_NPM_TOKEN}"
+  else
+    # sed -E -i "" -e "/^export ARTIFACTORY_NPM_TOKEN=.*/s//export ARTIFACTORY_NPM_TOKEN=\"\${token}\"/" \\
+    #   "\${ZDOTDIR:-\${HOME}}/.artifactory" > /dev/null
+  fi
+}
+
+artifactory-pypi-token() {
+  local token="\${1}"
+  if [[ -z "\${token}" ]]; then
+    echo "\${ARTIFACTORY_PYPI_TOKEN}"
+  else
+    # sed -E -i "" -e "/^export ARTIFACTORY_PYPI_TOKEN=.*/s//export ARTIFACTORY_PYPI_TOKEN=\"\${token}\"/" \\
+    #   "\${ZDOTDIR:-\${HOME}}/.artifactory" > /dev/null
+  fi
+}
+EOF
+
+echo "[Gemfury] To update your token, run: artifactory-token TOKEN"
